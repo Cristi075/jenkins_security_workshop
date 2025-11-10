@@ -1,0 +1,58 @@
+services:
+  openldap:
+    image: osixia/openldap:latest
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: "Lab"
+      LDAP_DOMAIN: "lab.local"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
+      LDAP_SEED_INTERNAL_LDIF_PATH: "/ldif"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+      - ./ldap/ldif:/ldif
+    networks:
+      - ldap_network
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "9080:80"
+    depends_on:
+      - openldap
+    networks:
+      - ldap_network
+
+  jenkins:
+    build: ./jenkins-casc
+    container_name: jenkins
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /var/jenkins_conf/jenkins.yaml
+    ports:
+      - "9081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - ./jenkins-casc/jenkins.yaml:/var/jenkins_conf/jenkins.yaml:ro
+      - ./jenkins-casc/plugins.txt:/usr/share/jenkins/ref/plugins.txt:ro
+    depends_on:
+      - openldap
+    networks:
+      - ldap_network
+
+volumes:
+  ldap_data:
+  ldap_config:
+  jenkins_data:
+
+networks:
+  ldap_network:
+    driver: bridge

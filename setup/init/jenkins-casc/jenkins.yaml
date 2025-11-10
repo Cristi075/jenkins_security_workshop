@@ -1,0 +1,187 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+  
+  authorizationStrategy: unsecured
+  
+  disableRememberMe: false
+  
+  numExecutors: 2
+  mode: NORMAL
+
+unclassified:
+  location:
+    url: "http://localhost:9081/"
+    adminAddress: "admin@lab.local"
+    
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "ldap-admin"
+              username: "cn=admin,dc=lab,dc=local"
+              password: "adminpassword"
+              description: "LDAP Admin Credentials"
+          - usernamePassword:
+              scope: GLOBAL
+              id: "ci-cd-user"
+              username: "goodusername"
+              password: "LOUVRE"
+              description: "They're not gonna try this one ..."
+          - string:
+              scope: GLOBAL
+              id: "ci-cd-api-key"
+              secret: "AIzaSyDaGmWKa4JsXZ-HjGw7ISLn_3namBGewQe"
+              description: "API Key"
+          - string:
+              scope: GLOBAL
+              id: "secret1"
+              secret: "never gonna give you up"
+              description: "Secret 1"
+          - string:
+              scope: GLOBAL
+              id: "secret2"
+              secret: "never gonna let you down"
+              description: "Secret 2"
+          - string:
+              scope: GLOBAL
+              id: "secret3"
+              secret: "never gonna run around"
+              description: "Secret 3"
+          - string:
+              scope: GLOBAL
+              id: "secret4"
+              secret: "and desert you"
+              description: "Secret 4"
+          - string:
+              scope: GLOBAL
+              id: "secret5"
+              secret: "never gonna make you cry"
+              description: "Secret 5"
+          - string:
+              scope: GLOBAL
+              id: "secret6"
+              secret: "never gonna say goodbye"
+              description: "Secret 6"
+          - string:
+              scope: GLOBAL
+              id: "secret7"
+              secret: "never gonna tell a lie"
+              description: "Secret 7"
+          - string:
+              scope: GLOBAL
+              id: "secret8"
+              secret: "and hurt you"
+              description: "Secret 8"
+security:
+  GlobalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+  scriptApproval:
+    approvedSignatures:
+      - "staticMethod jenkins.model.Jenkins getInstance"
+      - "method java.io.InputStream available"
+      - "method java.io.InputStream read"
+      - "method java.io.OutputStream write int"
+      - "method java.lang.Process exitValue"
+      - "method java.lang.Process getErrorStream"
+      - "method java.lang.Process getInputStream"
+      - "method java.lang.Process getOutputStream"
+      - "method java.lang.ProcessBuilder redirectErrorStream boolean"
+      - "method java.lang.ProcessBuilder start"
+      - "method java.net.Socket getInputStream"
+      - "method java.net.Socket getOutputStream"
+      - "method java.net.Socket isClosed"
+      - "new java.lang.ProcessBuilder java.lang.String[]"
+      - "new java.net.Socket java.lang.String int"
+      - "staticMethod java.lang.Thread sleep long"
+
+jobs:
+  - script: >
+      pipelineJob('Hello-World') {
+        definition {
+          cps {
+            script("""
+              pipeline {
+                agent any
+                stages {
+                  stage('print') {
+                    steps {
+                      echo 'Hello world'
+                    }
+                  }
+                }
+              }
+            """.stripIndent())
+          }
+        }
+      }
+  - script: >
+      pipelineJob('CICD Sanity Check') {
+        definition {
+          cps {
+            script('''
+              pipeline {
+                agent any
+                stages {
+                  stage('Env setup') {
+                    steps {
+                      echo 'Setting up environment...'
+                    }
+                  }
+                  stage('Configuring account') {
+                    steps {
+                      script {
+                        def username = null;
+                        def password = null;
+                        withCredentials([usernamePassword(credentialsId: 'ci-cd-user', usernameVariable: 'CI_USERNAME', passwordVariable: 'CI_PASSWORD')]) {
+                          username = CI_USERNAME;
+                          password = CI_PASSWORD;
+                          echo "Retrieving creds..."
+                        }
+                        echo "Starting account configuration tool in non-interactive mode"
+                        echo "DEBUG: Retrieving creds from env"
+                        echo "DEBUG: Login using $username:$password"
+                        echo "DEBUG: Login successful"
+                        echo "DEBUG: Checking profile..."
+                        echo "Account configured successfully"
+                      }
+                    }
+                  }
+                  stage('Test API Key') {
+                    steps {
+                      script{
+                        echo 'API Key testing...';
+                        def api_key = null;
+                        withCredentials([
+                          string(credentialsId: 'ci-cd-api-key', variable: 'stored_api_key')
+                        ]) {
+                          echo "Retrieved API Key: $stored_api_key"
+                          api_key = stored_api_key
+                        }
+                        echo "Running tests using API Key:$api_key";
+                        echo "Test 1/5 - passed";
+                        echo "Test 2/5 - passed";
+                        echo "Test 3/5 - passed";
+                        echo "Test 4/5 - passed";
+                        echo "Test 5/5 - passed";
+                        echo "All tests passed";
+                      }
+                    }
+                  }
+                  stage('Cleanup') {
+                    steps {
+                      echo 'Cleaning up environment'
+                    }
+                  }
+                }
+              }
+            '''.stripIndent())
+          }
+        }
+      }

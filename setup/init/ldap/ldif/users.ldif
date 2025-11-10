@@ -1,0 +1,106 @@
+# Create organizational units
+dn: ou=users,dc=lab,dc=local
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,dc=lab,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+# Users
+dn: uid=developer1,ou=users,dc=lab,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: developer1
+cn: Developer One
+sn: One
+givenName: Developer
+displayName: Developer One
+mail: developer1@lab.local
+userPassword: developer1
+uidNumber: 10001
+gidNumber: 10001
+homeDirectory: /home/developer1
+loginShell: /bin/bash
+
+dn: uid=developer2,ou=users,dc=lab,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: developer2
+cn: Developer Two
+sn: Two
+givenName: Developer
+displayName: Developer Two
+mail: developer2@lab.local
+userPassword: developer2
+uidNumber: 10002
+gidNumber: 10002
+homeDirectory: /home/developer2
+loginShell: /bin/bash
+
+dn: uid=devops1,ou=users,dc=lab,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: devops1
+cn: DevOps One
+sn: One
+givenName: DevOps
+displayName: DevOps One
+mail: devops1@lab.local
+userPassword: devops1
+uidNumber: 10003
+gidNumber: 10003
+homeDirectory: /home/devops1
+loginShell: /bin/bash
+
+dn: uid=administrative1,ou=users,dc=lab,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: administrative1
+cn: Administrative One
+sn: One
+givenName: Administrative
+displayName: Administrative One
+mail: administrative1@lab.local
+userPassword: administrative1
+uidNumber: 10004
+gidNumber: 10004
+homeDirectory: /home/administrative1
+loginShell: /bin/bash
+
+dn: uid=user1,ou=users,dc=lab,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: user1
+cn: User One
+sn: One
+givenName: User
+displayName: User One
+mail: user1@lab.local
+userPassword: user1
+uidNumber: 10005
+gidNumber: 10005
+homeDirectory: /home/user1
+loginShell: /bin/bash
+
+# Groups
+dn: cn=developers,ou=groups,dc=lab,dc=local
+objectClass: groupOfNames
+cn: developers
+member: uid=developer1,ou=users,dc=lab,dc=local
+member: uid=developer2,ou=users,dc=lab,dc=local
+
+dn: cn=devops,ou=groups,dc=lab,dc=local
+objectClass: groupOfNames
+cn: devops
+member: uid=devops1,ou=users,dc=lab,dc=local
+
+dn: cn=admins,ou=groups,dc=lab,dc=local
+objectClass: groupOfNames
+cn: admins
+member: uid=administrative1,ou=users,dc=lab,dc=local

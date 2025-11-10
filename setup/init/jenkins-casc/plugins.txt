@@ -1,0 +1,12 @@
+ldap:latest
+configuration-as-code:latest
+git:latest
+workflow-aggregator:latest
+pipeline-stage-view:latest
+blueocean:latest
+docker-workflow:latest
+credentials-binding:latest
+ssh-slaves:latest
+matrix-auth:latest
+job-dsl:latest
+build-user-vars-plugin:latest
